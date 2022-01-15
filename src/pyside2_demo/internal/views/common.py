@@ -2,8 +2,14 @@ import hashlib
 import sys
 import traceback
 
-from PySide2.QtCore import QObject, QRunnable, Signal, Slot
-from PySide2.QtWidgets import QWidget, QDesktopWidget
+from PySide2.QtCore import QObject, QRunnable, Signal, Slot, Qt
+from PySide2.QtGui import QPainter, QPen, QColor, QPixmap, QPainterPath
+from PySide2.QtWidgets import QWidget, QDesktopWidget, QLabel
+
+
+def draw_sketch(painter: QPainter, x: int, y: int, width: int, height: int, color: QColor = Qt.red, brush: int = 1):
+    painter.setPen(QPen(color, brush, Qt.SolidLine))
+    painter.drawRect(x, y, width, height)
 
 
 def set_widget_on_screen_center(widget: QWidget, w: int, h: int):
@@ -86,3 +92,32 @@ class Worker(QRunnable):
             self.signals.result.emit(result)  # noqa
         finally:
             self.signals.finished.emit()  # noqa
+
+
+class RoundAvatar(QLabel):
+    def __init__(self, *args, antialiasing=True, filepath="", avatar_size=50, **kwargs):
+        """ 產生圓形的頭像 """
+        super(RoundAvatar, self).__init__(*args, **kwargs)
+        self.Antialiasing = antialiasing
+        self.setMaximumSize(avatar_size, avatar_size)
+        self.setMinimumSize(avatar_size, avatar_size)
+        self.radius = int(avatar_size / 2)
+        self.target = QPixmap(self.size())
+        self.target.fill(Qt.transparent)
+
+        p = QPixmap(filepath).scaled(
+            avatar_size, avatar_size, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+
+        painter = QPainter(self.target)
+        if self.Antialiasing:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.setRenderHint(QPainter.HighQualityAntialiasing, True)
+            painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+
+        path = QPainterPath()
+        path.addRoundedRect(
+            0, 0, self.width(), self.height(), self.radius, self.radius)
+
+        painter.setClipPath(path)
+        painter.drawPixmap(0, 0, p)
+        self.setPixmap(self.target)
