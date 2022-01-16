@@ -39,6 +39,7 @@ class MainWidget(QWidget):
 
         # 設定 table
         table = QTableWidget(0, 4)
+        table.cellClicked.connect(self.table_cell_clicked_fn)
         table.setSelectionBehavior(QAbstractItemView.SelectRows)  # 點選時會包含整個row
         table.setHorizontalHeaderItem(0, QTableWidgetItem(name_label.text()))
         table.setHorizontalHeaderItem(1, QTableWidgetItem(email_label.text()))
@@ -52,14 +53,18 @@ class MainWidget(QWidget):
         splitter.addWidget(group)
         splitter.addWidget(table)
 
-        ok_btn = QPushButton("OK")
-        ok_btn.clicked.connect(self.ok_btn_fn)
+        add_btn = QPushButton("Add")
+        add_btn.clicked.connect(self.add_btn_fn)
+        update_btn = QPushButton("Update")
+        update_btn.clicked.connect(self.update_btn_fn)
+        update_btn.setDisabled(True)
         del_btn = QPushButton("Delete")
         del_btn.clicked.connect(self.del_btn_fn)
-
+        del_btn.setDisabled(True)
         top_layout.addWidget(splitter, 0, 0, 1, 4)
-        top_layout.addWidget(del_btn, 1, 2)
-        top_layout.addWidget(ok_btn, 1, 3)
+        top_layout.addWidget(del_btn, 1, 1)
+        top_layout.addWidget(update_btn, 1, 2)
+        top_layout.addWidget(add_btn, 1, 3)
 
         # 設定 layout
         layout = QVBoxLayout()
@@ -70,10 +75,12 @@ class MainWidget(QWidget):
         self.address_line = address_line
         self.phone_line = phone_line
         self.table = table
+        self.update_btn = update_btn
+        self.del_btn = del_btn
         self.setLayout(layout)
 
     @Slot()
-    def ok_btn_fn(self):
+    def add_btn_fn(self):
         row = self.table.rowCount()
         name = self.name_line.text()
         email = self.email_line.text()
@@ -93,12 +100,52 @@ class MainWidget(QWidget):
             self.table.setItem(row, 1, email_item)
             self.table.setItem(row, 2, address_item)
             self.table.setItem(row, 3, phone_item)
+            self.update_btn.setEnabled(True)
+            self.del_btn.setEnabled(True)
+
+    @Slot()
+    def update_btn_fn(self):
+        row = self.table.currentRow()
+        if row != -1:
+            name = self.name_line.text()
+            email = self.email_line.text()
+            address = self.address_line.text()
+            phone = self.phone_line.text()
+            if name and email and address and phone:
+                name_item = QTableWidgetItem(name)
+                name_item.setFlags(name_item.flags() ^ Qt.ItemIsEditable)  # item 改成唯讀
+                email_item = QTableWidgetItem(email)
+                email_item.setFlags(name_item.flags() ^ Qt.ItemIsEditable)  # item 改成唯讀
+                address_item = QTableWidgetItem(address)
+                address_item.setFlags(name_item.flags() ^ Qt.ItemIsEditable)  # item 改成唯讀
+                phone_item = QTableWidgetItem(phone)
+                phone_item.setFlags(name_item.flags() ^ Qt.ItemIsEditable)  # item 改成唯讀
+                self.table.setItem(row, 0, name_item)
+                self.table.setItem(row, 1, email_item)
+                self.table.setItem(row, 2, address_item)
+                self.table.setItem(row, 3, phone_item)
 
     @Slot()
     def del_btn_fn(self):
         idx = self.table.currentRow()
         if idx != -1:
             self.table.removeRow(idx)
+
+        if not self.table.rowCount():
+            self.update_btn.setDisabled(True)
+            self.del_btn.setDisabled(True)
+
+    @Slot()
+    def table_cell_clicked_fn(self):
+        row = self.table.currentRow()
+        map_line = {
+            0: self.name_line, 1: self.email_line,
+            2: self.address_line, 3: self.phone_line}
+        for col in range(self.table.columnCount()):
+            line = map_line.get(col)
+            if line:
+                item = self.table.item(row, col)
+                line.setText(item.text())
 
 
 class MainWindow(QMainWindow):
