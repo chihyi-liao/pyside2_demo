@@ -4,7 +4,7 @@ import traceback
 
 from PySide2.QtCore import QObject, QRunnable, Signal, Slot, Qt
 from PySide2.QtGui import QPainter, QPen, QColor, QPixmap, QPainterPath
-from PySide2.QtWidgets import QWidget, QDesktopWidget, QLabel
+from PySide2.QtWidgets import QWidget, QDesktopWidget, QLabel, QFrame
 
 
 def draw_sketch(painter: QPainter, x: int, y: int, width: int, height: int, color: QColor = Qt.red, brush: int = 1):
@@ -121,3 +121,17 @@ class RoundAvatar(QLabel):
         painter.setClipPath(path)
         painter.drawPixmap(0, 0, p)
         self.setPixmap(self.target)
+
+
+class QHLine(QFrame):
+    def __init__(self):
+        super(QHLine, self).__init__()
+        self.setFrameShape(QFrame.HLine)
+        self.setFrameShadow(QFrame.Sunken)
+
+
+class QVLine(QFrame):
+    def __init__(self):
+        super(QVLine, self).__init__()
+        self.setFrameShape(QFrame.VLine)
+        self.setFrameShadow(QFrame.Sunken)

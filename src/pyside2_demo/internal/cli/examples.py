@@ -20,9 +20,18 @@ def example_01():
         sys.exit(app.exec_())
 
 
-@example_group.command(name="02", help="基本控件範例")
+@example_group.command(name="02", help="Layout範例")
 def example_02():
     from pyside2_demo.internal.views.examples.example02 import MainWindow
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
+
+
+@example_group.command(name="03", help="QListWidget範例")
+def example_03():
+    from pyside2_demo.internal.views.examples.example03 import MainWindow
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
