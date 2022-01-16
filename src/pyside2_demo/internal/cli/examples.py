@@ -36,3 +36,12 @@ def example_03():
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
+
+
+@example_group.command(name="04", help="QTableWidget範例")
+def example_04():
+    from pyside2_demo.internal.views.examples.example04 import MainWindow
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
