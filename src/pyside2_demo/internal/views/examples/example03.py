@@ -44,14 +44,15 @@ class MainWidget(QWidget):
     @Slot()
     def rename_btn_fn(self):
         curr_item = self.list_widget.currentItem()
-        idx = self.list_widget.row(curr_item)
-        text = curr_item.text()
-        replace_text, _ = QInputDialog.getText(
-            self, "Item", "Enter new item", QLineEdit.Normal, text)
-        if replace_text:
-            self.list_widget.takeItem(idx)  # 移除選擇的item
-            self.list_widget.insertItem(idx, replace_text)
-            self.list_widget.setCurrentRow(idx)
+        if curr_item:
+            text = curr_item.text()
+            idx = self.list_widget.row(curr_item)
+            replace_text, _ = QInputDialog.getText(
+                self, "Item", "Enter new item", QLineEdit.Normal, text)
+            if replace_text:
+                self.list_widget.takeItem(idx)  # 移除選擇的item
+                self.list_widget.insertItem(idx, replace_text)
+                self.list_widget.setCurrentRow(idx)
 
     @Slot()
     def del_btn_fn(self):
