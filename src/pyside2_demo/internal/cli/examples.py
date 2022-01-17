@@ -57,3 +57,15 @@ def example_04(style: str):
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
+
+
+@example_group.command(name="05", help="QTabWidget範例")
+@click.option('--style', '-s', type=click.Choice(QStyleFactory.keys()),
+              default=QStyleFactory.keys()[0], show_default=True, help='介面風格')
+def example_05(style: str):
+    from pyside2_demo.internal.views.examples.example05 import MainWindow
+    app = QApplication(sys.argv)
+    app.setStyle(QStyleFactory.create(style))
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
