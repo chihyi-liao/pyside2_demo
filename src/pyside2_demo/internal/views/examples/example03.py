@@ -2,7 +2,7 @@ from PySide2.QtCore import Slot
 from PySide2.QtWidgets import (
     QMainWindow,  QWidget, QGridLayout, QLineEdit, QPushButton, QListWidget, QInputDialog)
 
-from pyside2_demo.internal.views.common import set_widget_on_screen_center, QHLine
+from pyside2_demo.internal.views.common import QHLine
 
 
 class MainWidget(QWidget):
@@ -69,6 +69,6 @@ class MainWidget(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        set_widget_on_screen_center(self, 400, 300)
         self.setCentralWidget(MainWidget())
         self.setWindowTitle("Example03")
+        self.resize(400, 300)

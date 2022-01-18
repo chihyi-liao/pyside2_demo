@@ -6,7 +6,7 @@ from PySide2.QtWidgets import (
 )
 
 from pyside2_demo.internal.utils import get_resource
-from pyside2_demo.internal.views.common import set_widget_on_screen_center, is_valid_user, Worker
+from pyside2_demo.internal.views.common import is_valid_user, Worker
 
 
 EditLineStyleSheet = """QLineEdit{ 
@@ -22,7 +22,6 @@ EditLineStyleSheet = """QLineEdit{
 class LoginDialog(QDialog):
     def __init__(self):
         super(LoginDialog, self).__init__()
-        set_widget_on_screen_center(self, 250, 250)
         # 初始化圖形控件
         region_label = QLabel("地區")
         combox = QComboBox()
@@ -60,6 +59,7 @@ class LoginDialog(QDialog):
         # 設定 widget 參數
         self.setLayout(layout)
         self.setWindowTitle("登入")
+        self.setFixedSize(250, 250)
 
     @Slot()
     def execute_login_job(self):
@@ -95,7 +95,6 @@ class LoginDialog(QDialog):
 class MainWidget(QWidget):
     def __init__(self):
         super(MainWidget, self).__init__()
-        set_widget_on_screen_center(self, 600, 400)
         # 初始化圖形控件
         animation_label = QLabel("片名")
         combox = QComboBox()
@@ -137,9 +136,10 @@ class MainWidget(QWidget):
 
 class MainWindow(QMainWindow):
     def __init__(self):
-        super().__init__()
+        super(MainWindow, self).__init__()
         self.setCentralWidget(MainWidget())
         self.setWindowTitle("Example01")
+        self.resize(600, 400)
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, "關閉程式", '是否關閉程式?',

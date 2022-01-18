@@ -4,7 +4,7 @@ from PySide2.QtWidgets import (
     QLabel, QMainWindow,  QWidget, QGridLayout, QTextEdit, QGroupBox, QHBoxLayout, QVBoxLayout)
 
 from pyside2_demo.internal.utils import get_resource
-from pyside2_demo.internal.views.common import set_widget_on_screen_center, draw_sketch, RoundAvatar
+from pyside2_demo.internal.views.common import draw_sketch, RoundAvatar
 
 
 class HeaderSubWidget(QWidget):
@@ -153,10 +153,10 @@ class MainWidget(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        set_widget_on_screen_center(self, 1024, 768)
         self.init_status_bar()
         self.setCentralWidget(MainWidget())
         self.setWindowTitle("Example02")
+        self.resize(1024, 768)
 
     def init_status_bar(self):
         status_bar = self.statusBar()

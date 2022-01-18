@@ -3,8 +3,6 @@ from PySide2.QtWidgets import (
     QMainWindow,  QWidget, QGridLayout, QVBoxLayout,  QLabel, QHeaderView, QAbstractItemView,
     QLineEdit, QPushButton, QSplitter, QTableWidget, QTableWidgetItem, QGroupBox)
 
-from pyside2_demo.internal.views.common import set_widget_on_screen_center
-
 
 class MainWidget(QWidget):
     def __init__(self):
@@ -151,6 +149,6 @@ class MainWidget(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        set_widget_on_screen_center(self, 600, 400)
         self.setCentralWidget(MainWidget())
         self.setWindowTitle("Example04")
+        self.resize(600, 400)
