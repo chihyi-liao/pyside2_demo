@@ -43,7 +43,7 @@ class MpfStockWidget(QWidget):
         layout = QVBoxLayout()
         canvas = MplCanvas()
         layout.addWidget(canvas)
-        layout.setContentsMargins(0, 0, 0, 0)
+        # layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         self.canvas = canvas
 
@@ -60,10 +60,19 @@ class MpfStockWidget(QWidget):
                 self.canvas.fig.clf()
 
         days = params['days']
+        data = MyData.iloc[-days:, :]
         mpf_params = params['mplfinance']
+        hlines = []
+        if mpf_params["enable_hlines"]:
+            co_values = data['Close']
+            co_max = co_values.max()
+            co_min = co_values.min()
+            lo_line = (co_max - co_min) * 0.2 + co_min
+            hi_line = (co_max - co_min) * 0.8 + co_min
+            hlines = dict(hlines=[lo_line, hi_line], colors=['b', 'r'], linestyle='-.', linewidths=(1, 1))
         tw_colors = mpf.make_marketcolors(up='r', down='g', inherit=True)
         style = mpf.make_mpf_style(base_mpf_style=mpf_params['style'], marketcolors=tw_colors, y_on_right=False)
-        fig, axes = mpf.plot(data=MyData.iloc[-days:, :], style=style, type=mpf_params['type'],
+        fig, axes = mpf.plot(data=MyData.iloc[-days:, :], style=style, type=mpf_params['type'], hlines=hlines,
                              mav=mpf_params['mav'], returnfig=True, volume=mpf_params['volume'],
                              figscale=mpf_params['figscale'], fontscale=mpf_params['fontscale'],
                              ylabel='', datetime_format="%y %m-%d", tight_layout=mpf_params['tight_layout'])
@@ -139,6 +148,11 @@ class MainWidget(QWidget):
         font_scale_spin_box.setSingleStep(0.05)
         font_scale_spin_box.setValue(0.65)
 
+        h_line_label = QLabel("HLine")
+        h_line_label.setAlignment(Qt.AlignRight | Qt.AlignCenter)
+        h_line_chk_box = QCheckBox()
+        h_line_chk_box.setChecked(False)
+
         ma5_label = QLabel("MA5")
         ma5_label.setAlignment(Qt.AlignRight | Qt.AlignCenter)
         ma5_chk_box = QCheckBox()
@@ -169,6 +183,8 @@ class MainWidget(QWidget):
         group_layout.addWidget(volume_combox, 1, 5)
         group_layout.addWidget(tight_layout_label, 1, 6)
         group_layout.addWidget(tight_layout_combox, 1, 7)
+        group_layout.addWidget(h_line_label, 1, 8)
+        group_layout.addWidget(h_line_chk_box, 1, 9)
 
         group_layout.addWidget(fig_scale_label, 2, 0)
         group_layout.addWidget(fig_scale_spin_box, 2, 1)
@@ -192,7 +208,6 @@ class MainWidget(QWidget):
         layout.addWidget(QHLine(), 1, 0, 1, 2)
         layout.addWidget(execute_btn, 2, 1)
         layout.addWidget(mpf_stock, 3, 0, 1, 2)
-        layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
         # attachment control widget
@@ -208,6 +223,7 @@ class MainWidget(QWidget):
         self.ma5_chk_box = ma5_chk_box
         self.ma10_chk_box = ma10_chk_box
         self.ma20_chk_box = ma20_chk_box
+        self.h_line_chk_box = h_line_chk_box
         self.mpf_stock = mpf_stock
 
     def get_params(self):
@@ -229,7 +245,7 @@ class MainWidget(QWidget):
                 'volume': True if self.volume_combox.currentText() == 'True' else False,
                 'tight_layout': True if self.tight_layout_combox.currentText() == 'True' else False,
                 'figscale': self.fig_scale_spin_box.value(), 'fontscale': self.font_scale_spin_box.value(),
-                'mav': tuple(mav)
+                'mav': tuple(mav), 'enable_hlines': self.h_line_chk_box.isChecked()
             }
         }
 
