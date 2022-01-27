@@ -8,7 +8,7 @@ except ImportError:
 
 import pandas as pd
 
-from PySide2.QtCore import Slot, Qt
+from PySide2.QtCore import Slot, Qt, QEvent
 from PySide2.QtWidgets import (
     QMainWindow,  QWidget, QGridLayout, QPushButton, QLabel, QComboBox,
     QGroupBox, QSpinBox, QVBoxLayout, QSizePolicy, QDoubleSpinBox, QCheckBox)
@@ -43,9 +43,9 @@ class MpfStockWidget(QWidget):
         layout = QVBoxLayout()
         canvas = MplCanvas()
         layout.addWidget(canvas)
-        # layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         self.canvas = canvas
+        self.data = pd.DataFrame()
 
     def plot_stock(self, params: dict):
         layout = self.layout()
@@ -60,11 +60,11 @@ class MpfStockWidget(QWidget):
                 self.canvas.fig.clf()
 
         days = params['days']
-        data = MyData.iloc[-days:, :]
+        self.data = MyData.iloc[-days:, :]
         mpf_params = params['mplfinance']
         hlines = []
         if mpf_params["enable_hlines"]:
-            co_values = data['Close']
+            co_values = self.data['Close']
             co_max = co_values.max()
             co_min = co_values.min()
             lo_line = (co_max - co_min) * 0.2 + co_min
@@ -72,7 +72,7 @@ class MpfStockWidget(QWidget):
             hlines = dict(hlines=[lo_line, hi_line], colors=['b', 'r'], linestyle='-.', linewidths=(1, 1))
         tw_colors = mpf.make_marketcolors(up='r', down='g', inherit=True)
         style = mpf.make_mpf_style(base_mpf_style=mpf_params['style'], marketcolors=tw_colors, y_on_right=False)
-        fig, axes = mpf.plot(data=MyData.iloc[-days:, :], style=style, type=mpf_params['type'], hlines=hlines,
+        fig, axes = mpf.plot(data=self.data, style=style, type=mpf_params['type'], hlines=hlines,
                              mav=mpf_params['mav'], returnfig=True, volume=mpf_params['volume'],
                              figscale=mpf_params['figscale'], fontscale=mpf_params['fontscale'],
                              ylabel='', datetime_format="%y %m-%d", tight_layout=mpf_params['tight_layout'])
@@ -88,7 +88,21 @@ class MpfStockWidget(QWidget):
             axes[-2].set_xlabel('日期', fontproperties=MyFont, fontsize=8)
             axes[-2].set_ylabel('股價', fontproperties=MyFont, fontsize=8)
         self.canvas = MplCanvas(fig, axes)
+        self.canvas.mpl_connect('motion_notify_event', self.on_motion)
         layout.addWidget(self.canvas)
+
+    @Slot(QEvent)
+    def on_motion(self, event):
+        if event.xdata and event.xdata > 0:
+            x = int(event.xdata + 0.5)
+            if x <= self.data.shape[0]-1:
+                data = self.data.iloc[x]
+                date_str = pd.to_datetime(data.name, format='%Y-%m-%d').strftime('%y-%m-%d')
+                msg = "{date}   co={price}   vol={volume}".format(
+                    date=date_str,
+                    price=data['Close'], volume=data['Volume'])
+                self.canvas.axes[0].set_title(msg, fontproperties=MyFont, fontsize=8, loc='left')
+                self.canvas.draw()
 
 
 class MainWidget(QWidget):
