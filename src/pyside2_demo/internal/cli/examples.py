@@ -81,3 +81,15 @@ def example_06(style: str):
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
+
+
+@example_group.command(name="07", help="QT Matplotlib + mplfinance 範例")
+@click.option('--style', '-s', type=click.Choice(QStyleFactory.keys()),
+              default=QStyleFactory.keys()[0], show_default=True, help='介面風格')
+def example_06(style: str):
+    from pyside2_demo.internal.views.examples.example07 import MainWindow
+    app = QApplication(sys.argv)
+    app.setStyle(QStyleFactory.create(style))
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
