@@ -1,5 +1,6 @@
 try:
     import matplotlib
+    from matplotlib import font_manager as fm
     matplotlib.use('Qt5Agg')
 except ImportError:
     raise
@@ -15,7 +16,14 @@ from matplotlib.font_manager import FontProperties
 
 from pyside2_demo.internal.utils import get_resource
 
+
+# case1: add font file manually and set 'fontproperties' to each label or title function
 font = FontProperties(fname=get_resource('NotoSansTC-Medium.otf'))
+
+# case2: create FontManager instance, this will search fonts under 'site-packages/matplotlib/mpl-data/fonts/ttf/'
+# my_fm = fm.FontManager()
+# fm.fontManager.addfont(my_fm.findfont('Noto Sans TC'))
+# matplotlib.rcParams['font.family'] = 'Noto Sans TC'
 
 
 class MplCanvas(FigureCanvasQTAgg):
