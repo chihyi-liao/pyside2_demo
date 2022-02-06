@@ -17,6 +17,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 from matplotlib import pyplot as plt
 
+from pyside2_demo.internal import compute
 from pyside2_demo.internal.views.common import QHLine
 from pyside2_demo.internal.utils import get_resource
 
@@ -47,7 +48,7 @@ class MpfStockWidget(QWidget):
         self.canvas = canvas
         self.data = pd.DataFrame()
 
-    def plot_stock(self, params: dict):
+    def draw(self, params: dict):
         layout = self.layout()
         if self.canvas:
             layout.removeWidget(self.canvas)
@@ -70,23 +71,32 @@ class MpfStockWidget(QWidget):
             lo_line = (co_max - co_min) * 0.2 + co_min
             hi_line = (co_max - co_min) * 0.8 + co_min
             hlines = dict(hlines=[lo_line, hi_line], colors=['b', 'r'], linestyle='-.', linewidths=(1, 1))
+
+        s, m, d = compute.macd(self.data['Close'])
+        ap2 = [mpf.make_addplot(s, color='yellow', panel=2),
+               mpf.make_addplot(m, color='g', panel=2),
+               mpf.make_addplot(d, type='bar', color='dimgray', panel=2, alpha=1)]
+
         tw_colors = mpf.make_marketcolors(up='r', down='g', inherit=True)
         style = mpf.make_mpf_style(base_mpf_style=mpf_params['style'], marketcolors=tw_colors, y_on_right=False)
         fig, axes = mpf.plot(data=self.data, style=style, type=mpf_params['type'], hlines=hlines,
                              mav=mpf_params['mav'], returnfig=True, volume=mpf_params['volume'],
                              figscale=mpf_params['figscale'], fontscale=mpf_params['fontscale'],
-                             ylabel='', datetime_format="%y %m-%d", tight_layout=mpf_params['tight_layout'])
+                             ylabel='', datetime_format="%d\n%b", tight_layout=mpf_params['tight_layout'],
+                             addplot=ap2, xrotation=0)
 
+        # panel label settings, a panel will take 2 axes
+        main_panel = mpf_params.get('main_panel', 0)
+        axes[main_panel*2].set_ylabel('股價', fontproperties=MyFont, fontsize=8)
+        volume = mpf_params['volume']
+        if volume:
+            volume_panel = mpf_params.get('volume_panel', 1)
+            axes[volume_panel*2].set_ylabel('成交量', fontproperties=MyFont, fontsize=8)
+
+        # set title on top of panels
         title = "{name}({code})".format(name=params['name'], code=params['code'])
-        if mpf_params['volume']:
-            axes[0].set_title(title, fontproperties=MyFont, fontsize=8)
-            axes[0].set_ylabel('股價', fontproperties=MyFont, fontsize=8)
-            axes[-2].set_xlabel('日期', fontproperties=MyFont, fontsize=8)
-            axes[-2].set_ylabel('成交量', fontproperties=MyFont, fontsize=8)
-        else:
-            axes[-2].set_title(title, fontproperties=MyFont, fontsize=8)
-            axes[-2].set_xlabel('日期', fontproperties=MyFont, fontsize=8)
-            axes[-2].set_ylabel('股價', fontproperties=MyFont, fontsize=8)
+        axes[0].set_title(title, fontproperties=MyFont, fontsize=8, loc='right')
+
         self.canvas = MplCanvas(fig, axes)
         self.canvas.mpl_connect('motion_notify_event', self.on_motion)
         layout.addWidget(self.canvas)
@@ -98,9 +108,9 @@ class MpfStockWidget(QWidget):
             if x <= self.data.shape[0]-1:
                 data = self.data.iloc[x]
                 date_str = pd.to_datetime(data.name, format='%Y-%m-%d').strftime('%y-%m-%d')
-                msg = "{date}   co={price}   vol={volume}".format(
-                    date=date_str,
-                    price=data['Close'], volume=data['Volume'])
+                msg = "日期:{date}\n開盤:{open}  最高:{high}  最低:{low}  收盤:{close}  量:{volume}".format(
+                    date=date_str, open=data['Open'], high=data['High'],
+                    low=data['Low'], close=data['Close'], volume=int(data['Volume']))
                 self.canvas.axes[0].set_title(msg, fontproperties=MyFont, fontsize=8, loc='left')
                 self.canvas.draw()
 
@@ -211,10 +221,12 @@ class MainWidget(QWidget):
         group_layout.addWidget(ma20_label, 2, 8)
         group_layout.addWidget(ma20_chk_box, 2, 9)
         group.setLayout(group_layout)
+        group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         mpf_stock = MpfStockWidget()
+        mpf_stock.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         execute_btn = QPushButton("Execute")
-        execute_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        execute_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         execute_btn.clicked.connect(self.execute_btn_fn)
 
         layout = QGridLayout()
@@ -265,7 +277,7 @@ class MainWidget(QWidget):
 
     @Slot()
     def execute_btn_fn(self):
-        self.mpf_stock.plot_stock(params=self.get_params())
+        self.mpf_stock.draw(params=self.get_params())
 
 
 class MainWindow(QMainWindow):
@@ -273,4 +285,4 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.setCentralWidget(MainWidget())
         self.setWindowTitle("Example07")
-        self.resize(800, 600)
+        self.resize(1024, 720)
