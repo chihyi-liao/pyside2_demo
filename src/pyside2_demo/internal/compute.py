@@ -12,7 +12,7 @@ def sma(values: List[float], n: int) -> Union[List, np.ndarray]:
 
     cumulate_sum = np.cumsum(np.insert(values, 0, 0), dtype=float)
     move_avg = (cumulate_sum[n:] - cumulate_sum[:-n]) / float(n)
-    return np.insert(move_avg, 0, [0] * (n-1))
+    return np.insert(move_avg, 0, [np.nan] * (n-1))
 
 
 def ewma(values, n, smoothing=2) -> Union[List, np.ndarray]:
@@ -58,7 +58,7 @@ def macd(values: List[float], fast: Optional[int] = 12,
 
 
 def rsi(close_values, n: Optional[int] = 10) -> List[float]:
-    result = []
+    result = [None]
     up_moves = []
     down_moves = []
     for i in range(1, len(close_values)):
@@ -110,17 +110,30 @@ def kdj(high_values: List[float], low_values: List[float],
     return k_data, d_data, j_data
 
 
-def obv(close_values: List[float], volumes: List[int]) -> List[int]:
-    data = []
-    for i, co in enumerate(close_values):
-        if i == 0:
-            data.append(0)
+def obv(close_values: List[float], volumes: List[int], n: int = 45) -> List[int]:
+    if len(close_values) < n:
+        return []
+
+    result = []
+    for i in range(len(close_values)):
+        if i < n:
+            result.append(None)
         else:
-            vol = volumes[i]
-            prev_co = close_values[i-1]
-            if co == prev_co:
-                vol = 0
-            elif co < prev_co:
-                vol = -1 * vol
-            data.append(data[i-1] + vol)
-    return data
+            data = []
+            _volumes = volumes[i-n:i]
+            _close_values = close_values[i-n:i]
+            for j, co in enumerate(_close_values):
+                if j == 0:
+                    data.append(0)
+                else:
+                    vol = _volumes[j]
+                    prev_co = _close_values[j-1]
+                    if co == prev_co:
+                        vol = 0
+                    elif co < prev_co:
+                        vol = -1 * vol
+                    data.append(data[j-1] + vol)
+            min_val, max_val = min(data), max(data)
+            rate = round((100 * (data[-1] + abs(min_val))) / (max_val - min_val), 2) if max_val != min_val else None
+            result.append(rate)
+    return result
