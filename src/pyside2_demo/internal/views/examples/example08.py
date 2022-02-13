@@ -83,20 +83,20 @@ class MpfStockWidget(QWidget):
         self.data = data
         self.aps = []
         self.main_ax = canvas.axes[0]
-        self.main_ax_vertical_line = self.main_ax.axvline(color='yellow', linewidth=1, linestyle="-")
+        self.main_ax_vertical_line = self.main_ax.axvline(color='#d49424', linewidth=1, linestyle="-")
         if enable_extra_ax:
             canvas.add_axes([0.08, 0.05, 0.88, 0.1], sharex=canvas.axes[0])
             self.extra_ax = canvas.axes[1]
-            self.extra_ax_vertical_line = self.extra_ax.axvline(color='yellow', linewidth=1, linestyle="-")
+            self.extra_ax_vertical_line = self.extra_ax.axvline(color='#d49424', linewidth=1, linestyle="-")
             self.extra_ax_ylabel = ''
             self.volume_ax = canvas.axes[2]
-            self.volume_ax_vertical_line = self.volume_ax.axvline(color='yellow', linewidth=1, linestyle="-")
+            self.volume_ax_vertical_line = self.volume_ax.axvline(color='#d49424', linewidth=1, linestyle="-")
         else:
             self.extra_ax = None
             self.extra_ax_vertical_line = None
             self.extra_ax_ylabel = None
             self.volume_ax = canvas.axes[1]
-            self.volume_ax_vertical_line = self.volume_ax.axvline(color='yellow', linewidth=1, linestyle="-")
+            self.volume_ax_vertical_line = self.volume_ax.axvline(color='#d49424', linewidth=1, linestyle="-")
 
         self.mouse_press = False
         self.mouse_xpress = None
@@ -114,6 +114,7 @@ class MpfStockWidget(QWidget):
 
     def reset(self):
         self.clear_axes()
+        self.canvas.fig.clf()
         self.aps = []
         self.canvas_bind_event_flag = False
         self.mouse_press = False
@@ -159,24 +160,25 @@ class MpfStockWidget(QWidget):
             return
 
         idx_start = self.idx_start
+        max_x = self.data.shape[0] - 1
         if event.button == 'down':
-            view_num = self.view_num - 50
-            if view_num <= 50:
-                view_num = 50
+            view_num = 100 if self.view_num - 50 < 100 else self.view_num - 50
         elif event.button == 'up':
-            view_num = self.view_num + 50
-            if view_num >= 200:
-                view_num = 200
+            view_num = 500 if self.view_num + 50 > 300 else self.view_num + 50
         else:
             return
+
+        if max_x - view_num > 0:
+            if idx_start+view_num > max_x:
+                idx_start = max_x - view_num
+        else:
+            idx_start = 0
+            view_num = max_x
 
         if view_num == self.view_num:
             return
 
-        max_x = self.data.shape[0] - 1
-        if idx_start+view_num > max_x:
-            self.idx_start = max_x - view_num
-
+        self.idx_start = idx_start
         self.view_num = view_num
         self.refresh_plot(idx_start=self.idx_start, view_num=self.view_num)
 
@@ -194,7 +196,7 @@ class MpfStockWidget(QWidget):
             x = int(event.xdata + 0.5)
             max_x = self.data.shape[0] - 1
             if x <= max_x:
-                self.mouse_xpress = event.xdata
+                self.mouse_xpress = x
 
         self.main_ax_vertical_line.set_visible(False)
         self.volume_ax_vertical_line.set_visible(False)
@@ -258,16 +260,16 @@ class MpfStockWidget(QWidget):
         mpf.plot(data=plot_data, **params)
         # reset vertical line
         self.main_ax.set_ylabel('股價', fontproperties=MyFont, fontsize=8)
-        self.main_ax_vertical_line = self.main_ax.axvline(color='yellow', linewidth=1, linestyle="-")
+        self.main_ax_vertical_line = self.main_ax.axvline(color='#d49424', linewidth=1, linestyle="-")
         self.main_ax_vertical_line.set_xdata(self.idx_start)
 
         self.volume_ax.set_ylabel('成交量', fontproperties=MyFont, fontsize=8)
-        self.volume_ax_vertical_line = self.volume_ax.axvline(color='yellow', linewidth=1, linestyle="-")
+        self.volume_ax_vertical_line = self.volume_ax.axvline(color='#d49424', linewidth=1, linestyle="-")
         self.volume_ax_vertical_line.set_xdata(self.idx_start)
 
         if self.extra_ax:
             self.extra_ax.set_ylabel(self.extra_ax_ylabel, fontproperties=MyFont, fontsize=8)
-            self.extra_ax_vertical_line = self.extra_ax.axvline(color='yellow', linewidth=1, linestyle="-")
+            self.extra_ax_vertical_line = self.extra_ax.axvline(color='#d49424', linewidth=1, linestyle="-")
             self.extra_ax_vertical_line.set_xdata(self.idx_start)
 
         self.canvas.draw()
@@ -302,13 +304,7 @@ class MainWidget(QWidget):
         group.setLayout(group_layout)
         group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
-        _signal, _macd, _diff = compute.macd(MyData['Close'].tolist())
-        extra_data = pd.DataFrame(data={'Signal': _signal, 'MACD': _macd, 'Diff': _diff})
-        data = MyData.join(extra_data)
-        data['Date'] = pd.DatetimeIndex(data['Date'])
-        data.set_index('Date', inplace=True)
-        mpf_stock = MpfStockWidget(data=data, enable_extra_ax=True)
-        # mpf_stock.add_help_ax('MACD')
+        mpf_stock = QWidget()
 
         execute_btn = QPushButton("Execute")
         execute_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -328,15 +324,42 @@ class MainWidget(QWidget):
 
     @Slot()
     def execute_btn_fn(self):
-        self.mpf_stock.reset()
-        extra_params = [
-            ['Signal', 'MACD', 'Diff'],
-            [{'color': 'r', 'width': 0.8},
-             {'color': 'g', 'width': 0.8},
-             {'color': 'dimgray', 'type': 'bar', 'alpha': 1}]]
-        self.mpf_stock.set_extra_ax_addplot(columns=extra_params[0], columns_params=extra_params[1], ylabel='MACD')
-        view_num = self.mpf_stock.view_num
-        self.mpf_stock.refresh_plot(idx_start=MyData.shape[0]-1-view_num, view_num=view_num)
+        # add SMA data
+        sma_df_names = ['MA5', 'MA10', 'MA20']
+        sma_ap_params = [
+            {'color': '#ffd700', 'width': 0.8},
+            {'color': '#00ffff', 'width': 0.8},
+            {'color': '#8a2be2',  'width': 0.8}]
+        _ma5 = compute.sma(MyData['Close'].tolist(), n=5)
+        _ma10 = compute.sma(MyData['Close'].tolist(), n=10)
+        _ma20 = compute.sma(MyData['Close'].tolist(), n=20)
+        main_data = pd.DataFrame(data={sma_df_names[0]: _ma5, sma_df_names[1]: _ma10, sma_df_names[2]: _ma20})
+        data = MyData.join(main_data)
+
+        # add MACD data
+        macd_df_names = ['Signal', 'MACD', 'Diff']
+        macd_ap_params = [
+            {'color': '#ffd700', 'width': 0.8},
+            {'color': '#00ffff', 'width': 0.8},
+            {'color': 'dimgray', 'type': 'bar', 'alpha': 1}]
+        _signal, _macd, _diff = compute.macd(MyData['Close'].tolist())
+        extra_data = pd.DataFrame(
+            data={macd_df_names[0]: _signal, macd_df_names[1]: _macd, macd_df_names[2]: _diff})
+        data = data.join(extra_data)
+
+        # set DF index
+        data['Date'] = pd.DatetimeIndex(data['Date'])
+        data.set_index('Date', inplace=True)
+
+        layout = self.layout()
+        layout.removeWidget(self.mpf_stock)
+        self.mpf_stock.deleteLater()
+        self.mpf_stock = MpfStockWidget(data=data, enable_extra_ax=True)
+        self.mpf_stock.set_main_ax_addplot(columns=sma_df_names, columns_params=sma_ap_params)
+        self.mpf_stock.set_extra_ax_addplot(columns=macd_df_names, columns_params=macd_ap_params, ylabel='MACD')
+        self.mpf_stock.refresh_plot(idx_start=data.shape[0] - 1 - self.mpf_stock.view_num,
+                                    view_num=self.mpf_stock.view_num)
+        layout.addWidget(self.mpf_stock, 3, 0, 1, 2)  # noqa
 
 
 class MainWindow(QMainWindow):
