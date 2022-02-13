@@ -59,6 +59,7 @@ MyStyle = dict(
 )
 MyFont = FontProperties(fname=get_resource('NotoSansTC-Medium.otf'))
 MyData = pd.read_csv(get_resource('tw-2330.csv'), parse_dates=['Date'])
+MyFontParams = {'fontproperties': MyFont, 'fontsize': 8}
 
 
 class MplCanvas(FigureCanvas):
@@ -110,7 +111,22 @@ class MpfStockWidget(QWidget):
 
         self.canvas = canvas
         self.canvas_bind_event_flag = False
-        self.text1 = self.canvas.fig.text(0.5, 0.94, '', fontproperties=MyFont, fontsize=8)
+
+        # Init Canvas Text
+        self.name_text = self.canvas.fig.text(0.08, 0.95, '台積電 (2330)', **MyFontParams)
+        self.date_text = self.canvas.fig.text(0.08, 0.92, '日期: 2022-02-14', **MyFontParams)
+        self.open_title_text = self.canvas.fig.text(0.20, 0.95, '開盤:', **MyFontParams)
+        self.open_value_text = self.canvas.fig.text(0.23, 0.95, '1000', **MyFontParams)
+        self.close_title_text = self.canvas.fig.text(0.20, 0.92, '收盤:', **MyFontParams)
+        self.close_value_text = self.canvas.fig.text(0.23, 0.92, '1000', **MyFontParams)
+        self.high_title_text = self.canvas.fig.text(0.28, 0.95, '最高:', **MyFontParams)
+        self.high_value_text = self.canvas.fig.text(0.31, 0.95, '900', **MyFontParams)
+        self.low_title_text = self.canvas.fig.text(0.28, 0.92, '最低:', **MyFontParams)
+        self.low_value_text = self.canvas.fig.text(0.31, 0.92, '950', **MyFontParams)
+        self.change_title_text = self.canvas.fig.text(0.36, 0.95, '漲幅:', **MyFontParams)
+        self.change_value_text = self.canvas.fig.text(0.39, 0.95, '', **MyFontParams)
+        self.volume_title_text = self.canvas.fig.text(0.36, 0.92, '總量:', **MyFontParams)
+        self.volume_value_text = self.canvas.fig.text(0.39, 0.92, '12000', **MyFontParams)
 
     def reset(self):
         self.clear_axes()
@@ -164,7 +180,7 @@ class MpfStockWidget(QWidget):
         if event.button == 'down':
             view_num = 100 if self.view_num - 50 < 100 else self.view_num - 50
         elif event.button == 'up':
-            view_num = 500 if self.view_num + 50 > 300 else self.view_num + 50
+            view_num = 400 if self.view_num + 50 > 400 else self.view_num + 50
         else:
             return
 
@@ -233,16 +249,63 @@ class MpfStockWidget(QWidget):
             x = int(event.xdata + 0.5)
             if self.idx_start-1 < x+self.idx_start <= self.data.shape[0]-1:
                 data = self.data.iloc[x+self.idx_start]
-                date_str = pd.to_datetime(data.name, format='%Y-%m-%d').strftime('%y-%m-%d')
-                msg = "日期:{date}\n開盤:{open}  最高:{high}  最低:{low}  收盤:{close}  量:{volume}".format(
-                    date=date_str, open=data['Open'], high=data['High'],
-                    low=data['Low'], close=data['Close'], volume=int(data['Volume']))
-                self.text1.set_text(msg)
                 self.main_ax_vertical_line.set_xdata(x)
                 self.volume_ax_vertical_line.set_xdata(x)
                 if self.extra_ax:
                     self.extra_ax_vertical_line.set_xdata(x)
+                self.refresh_text(data)
                 self.canvas.draw()
+
+    def refresh_text(self, data: pd.DataFrame):
+        date_str = pd.to_datetime(data.name, format='%Y-%m-%d').strftime('%y-%m-%d')
+        red = '#ff0000'
+        green = '#00ff00'
+        white = '#ffffff'
+        change = data['Change']
+        prev_price = data['Close'] - change
+
+        if data['Open'] > prev_price:
+            self.open_value_text.set_color(red)
+        elif data['Open'] < prev_price:
+            self.open_value_text.set_color(green)
+        else:
+            self.open_value_text.set_color(white)
+
+        if data['High'] > prev_price:
+            self.high_value_text.set_color(red)
+        elif data['High'] < prev_price:
+            self.high_value_text.set_color(green)
+        else:
+            self.high_value_text.set_color(white)
+
+        if data['Low'] > prev_price:
+            self.low_value_text.set_color(red)
+        elif data['Low'] < prev_price:
+            self.low_value_text.set_color(green)
+        else:
+            self.low_value_text.set_color(white)
+
+        percentage = round(((data['Close'] - prev_price) * 100) / prev_price, 2)
+        if change > 0:
+            self.change_value_text.set_color(red)
+            self.close_value_text.set_color(red)
+            self.volume_value_text.set_color(red)
+        elif change < 0:
+            self.change_value_text.set_color(green)
+            self.close_value_text.set_color(green)
+            self.volume_value_text.set_color(green)
+        else:
+            self.change_value_text.set_color(white)
+            self.close_value_text.set_color(white)
+            self.volume_value_text.set_color(white)
+
+        self.date_text.set_text("日期: {date}".format(date=date_str))
+        self.open_value_text.set_text("{open}".format(open=data['Open']))
+        self.high_value_text.set_text("{high}".format(high=data['High']))
+        self.low_value_text.set_text("{low}".format(low=data['Low']))
+        self.close_value_text.set_text("{close}".format(close=data['Close']))
+        self.change_value_text.set_text("{change}%".format(change=percentage))
+        self.volume_value_text.set_text("{volume}".format(volume=int(data['Volume'])))
 
     def refresh_plot(self, idx_start: int, view_num: int):
         self.clear_axes()
