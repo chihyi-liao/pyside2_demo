@@ -114,19 +114,19 @@ class MpfStockWidget(QWidget):
 
         # Init Canvas Text
         self.name_text = self.canvas.fig.text(0.08, 0.95, '台積電 (2330)', **MyFontParams)
-        self.date_text = self.canvas.fig.text(0.08, 0.92, '日期: 2022-02-14', **MyFontParams)
+        self.date_text = self.canvas.fig.text(0.08, 0.92, '日期:', **MyFontParams)
         self.open_title_text = self.canvas.fig.text(0.20, 0.95, '開盤:', **MyFontParams)
-        self.open_value_text = self.canvas.fig.text(0.23, 0.95, '1000', **MyFontParams)
+        self.open_value_text = self.canvas.fig.text(0.23, 0.95, '', **MyFontParams)
         self.close_title_text = self.canvas.fig.text(0.20, 0.92, '收盤:', **MyFontParams)
-        self.close_value_text = self.canvas.fig.text(0.23, 0.92, '1000', **MyFontParams)
+        self.close_value_text = self.canvas.fig.text(0.23, 0.92, '', **MyFontParams)
         self.high_title_text = self.canvas.fig.text(0.28, 0.95, '最高:', **MyFontParams)
-        self.high_value_text = self.canvas.fig.text(0.31, 0.95, '900', **MyFontParams)
+        self.high_value_text = self.canvas.fig.text(0.31, 0.95, '', **MyFontParams)
         self.low_title_text = self.canvas.fig.text(0.28, 0.92, '最低:', **MyFontParams)
-        self.low_value_text = self.canvas.fig.text(0.31, 0.92, '950', **MyFontParams)
+        self.low_value_text = self.canvas.fig.text(0.31, 0.92, '', **MyFontParams)
         self.change_title_text = self.canvas.fig.text(0.36, 0.95, '漲幅:', **MyFontParams)
         self.change_value_text = self.canvas.fig.text(0.39, 0.95, '', **MyFontParams)
         self.volume_title_text = self.canvas.fig.text(0.36, 0.92, '總量:', **MyFontParams)
-        self.volume_value_text = self.canvas.fig.text(0.39, 0.92, '12000', **MyFontParams)
+        self.volume_value_text = self.canvas.fig.text(0.39, 0.92, '', **MyFontParams)
 
     def reset(self):
         self.clear_axes()
