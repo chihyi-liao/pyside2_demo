@@ -1,8 +1,8 @@
 import os
-from pkg_resources import resource_filename
+import sys
 
 from pyside2_demo import __package__ as project
 
 
 def get_resource(filename: str) -> str:
-    return resource_filename(project, os.path.join('resource', filename))
+    return os.path.join(os.path.dirname(sys.modules[project].__file__), 'resource', filename)
