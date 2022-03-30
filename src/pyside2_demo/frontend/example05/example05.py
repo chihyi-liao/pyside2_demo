@@ -2,7 +2,7 @@ from PySide2.QtCore import Slot, Qt
 from PySide2.QtWidgets import (
     QMainWindow,  QWidget, QGridLayout, QHBoxLayout, QPushButton, QTabWidget, QMessageBox)
 
-from pyside2_demo.internal.views.common import QHLine
+from pyside2_demo.common import QHLine
 
 
 class TabWidget(QWidget):

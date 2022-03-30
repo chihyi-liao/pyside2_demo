@@ -5,8 +5,8 @@ from PySide2.QtWidgets import (
     QWidget, QPushButton, QGridLayout, QDialogButtonBox, QTextEdit,
 )
 
-from pyside2_demo.internal.utils import get_resource
-from pyside2_demo.internal.views.common import is_valid_user, Worker
+from pyside2_demo.utils import get_resource
+from pyside2_demo.common import is_valid_user, Worker
 
 
 EditLineStyleSheet = """QLineEdit{ 

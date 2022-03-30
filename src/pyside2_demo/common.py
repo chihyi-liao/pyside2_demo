@@ -4,23 +4,12 @@ import traceback
 
 from PySide2.QtCore import QObject, QRunnable, Signal, Slot, Qt
 from PySide2.QtGui import QPainter, QPen, QColor, QPixmap, QPainterPath
-from PySide2.QtWidgets import QWidget, QDesktopWidget, QLabel, QFrame
+from PySide2.QtWidgets import QLabel, QFrame
 
 
 def draw_sketch(painter: QPainter, x: int, y: int, width: int, height: int, color: QColor = Qt.red, brush: int = 1):
     painter.setPen(QPen(color, brush, Qt.SolidLine))
     painter.drawRect(x, y, width, height)
-
-
-def set_widget_on_screen_center(widget: QWidget, w: int, h: int):
-    """ 設定讓 widget 顯示在螢幕中央 """
-    widget.setFixedSize(w, h)
-    frame = widget.frameGeometry()
-    desktop = QDesktopWidget()
-    screen = desktop.screenGeometry()
-    widget.setGeometry((screen.width()/2)-(frame.width()/2),
-                       (screen.height()/2)-(frame.height() / 2),
-                       frame.width(), frame.height())
 
 
 def hash_password(password: str) -> str:

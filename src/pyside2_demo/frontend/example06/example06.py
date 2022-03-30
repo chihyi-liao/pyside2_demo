@@ -14,7 +14,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 
-from pyside2_demo.internal.utils import get_resource
+from pyside2_demo.utils import get_resource
 
 
 # case1: add font file manually and set 'fontproperties' to each label or title function

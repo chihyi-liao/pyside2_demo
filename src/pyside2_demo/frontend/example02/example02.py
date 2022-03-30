@@ -3,8 +3,8 @@ from PySide2.QtGui import QPainter, QFont
 from PySide2.QtWidgets import (
     QLabel, QMainWindow,  QWidget, QGridLayout, QTextEdit, QGroupBox, QHBoxLayout, QVBoxLayout)
 
-from pyside2_demo.internal.utils import get_resource
-from pyside2_demo.internal.views.common import draw_sketch, RoundAvatar
+from pyside2_demo.utils import get_resource
+from pyside2_demo.common import draw_sketch, RoundAvatar
 
 
 class HeaderSubWidget(QWidget):

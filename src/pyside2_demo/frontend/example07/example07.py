@@ -17,9 +17,9 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 from matplotlib import pyplot as plt
 
-from pyside2_demo.internal import compute
-from pyside2_demo.internal.views.common import QHLine
-from pyside2_demo.internal.utils import get_resource
+from pyside2_demo.backend import compute
+from pyside2_demo.common import QHLine
+from pyside2_demo.utils import get_resource
 
 
 MyFont = FontProperties(fname=get_resource('NotoSansTC-Medium.otf'))

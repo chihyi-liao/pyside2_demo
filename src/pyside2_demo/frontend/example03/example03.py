@@ -2,7 +2,7 @@ from PySide2.QtCore import Slot
 from PySide2.QtWidgets import (
     QMainWindow,  QWidget, QGridLayout, QLineEdit, QPushButton, QListWidget, QInputDialog)
 
-from pyside2_demo.internal.views.common import QHLine
+from pyside2_demo.common import QHLine
 
 
 class MainWidget(QWidget):

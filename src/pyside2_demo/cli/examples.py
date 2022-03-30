@@ -13,7 +13,7 @@ def example_group():
 @click.option('--style', '-s', type=click.Choice(QStyleFactory.keys()),
               default=QStyleFactory.keys()[0], show_default=True, help='介面風格')
 def example_01(style: str):
-    from pyside2_demo.internal.views.examples.example01 import MainWindow, LoginDialog
+    from pyside2_demo.frontend.example01.example01 import MainWindow, LoginDialog
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create(style))
     login = LoginDialog()
@@ -27,7 +27,7 @@ def example_01(style: str):
 @click.option('--style', '-s', type=click.Choice(QStyleFactory.keys()),
               default=QStyleFactory.keys()[0], show_default=True, help='介面風格')
 def example_02(style: str):
-    from pyside2_demo.internal.views.examples.example02 import MainWindow
+    from pyside2_demo.frontend.example02.example02 import MainWindow
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create(style))
     window = MainWindow()
@@ -39,7 +39,7 @@ def example_02(style: str):
 @click.option('--style', '-s', type=click.Choice(QStyleFactory.keys()),
               default=QStyleFactory.keys()[0], show_default=True, help='介面風格')
 def example_03(style: str):
-    from pyside2_demo.internal.views.examples.example03 import MainWindow
+    from pyside2_demo.frontend.example03.example03 import MainWindow
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create(style))
     window = MainWindow()
@@ -51,7 +51,7 @@ def example_03(style: str):
 @click.option('--style', '-s', type=click.Choice(QStyleFactory.keys()),
               default=QStyleFactory.keys()[0], show_default=True, help='介面風格')
 def example_04(style: str):
-    from pyside2_demo.internal.views.examples.example04 import MainWindow
+    from pyside2_demo.frontend.example04.example04 import MainWindow
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create(style))
     window = MainWindow()
@@ -63,7 +63,7 @@ def example_04(style: str):
 @click.option('--style', '-s', type=click.Choice(QStyleFactory.keys()),
               default=QStyleFactory.keys()[0], show_default=True, help='介面風格')
 def example_05(style: str):
-    from pyside2_demo.internal.views.examples.example05 import MainWindow
+    from pyside2_demo.frontend.example05.example05 import MainWindow
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create(style))
     window = MainWindow()
@@ -75,7 +75,7 @@ def example_05(style: str):
 @click.option('--style', '-s', type=click.Choice(QStyleFactory.keys()),
               default=QStyleFactory.keys()[0], show_default=True, help='介面風格')
 def example_06(style: str):
-    from pyside2_demo.internal.views.examples.example06 import MainWindow
+    from pyside2_demo.frontend.example06.example06 import MainWindow
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create(style))
     window = MainWindow()
@@ -87,7 +87,7 @@ def example_06(style: str):
 @click.option('--style', '-s', type=click.Choice(QStyleFactory.keys()),
               default=QStyleFactory.keys()[0], show_default=True, help='介面風格')
 def example_07(style: str):
-    from pyside2_demo.internal.views.examples.example07 import MainWindow
+    from pyside2_demo.frontend.example07.example07 import MainWindow
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create(style))
     window = MainWindow()
@@ -99,7 +99,7 @@ def example_07(style: str):
 @click.option('--style', '-s', type=click.Choice(QStyleFactory.keys()),
               default=QStyleFactory.keys()[0], show_default=True, help='介面風格')
 def example_08(style: str):
-    from pyside2_demo.internal.views.examples.example08 import MainWindow
+    from pyside2_demo.frontend.example08.example08 import MainWindow
     app = QApplication(sys.argv)
     app.setStyle(QStyleFactory.create(style))
     window = MainWindow()

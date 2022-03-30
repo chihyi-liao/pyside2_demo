@@ -14,9 +14,9 @@ from PySide2.QtWidgets import (
     QGroupBox, QVBoxLayout, QSizePolicy)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.font_manager import FontProperties
-from pyside2_demo.internal import compute
-from pyside2_demo.internal.views.common import QHLine
-from pyside2_demo.internal.utils import get_resource
+from pyside2_demo.backend import compute
+from pyside2_demo.common import QHLine
+from pyside2_demo.utils import get_resource
 
 
 MyStyle = dict(
